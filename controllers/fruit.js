@@ -12,6 +12,21 @@ const Fruit = require("../models/fruit.js")// fruit model
 
 const router = express.Router()
 
+////////////////////////////
+// Router Middleware
+////////////////////////////
+
+router.use((req, res, next)=> {
+    // check if logged in
+    if (req.session.loggedIn){
+        // send to routes
+        next()
+    } else {
+        res.redirect("/user/login")
+    }
+});
+
+
 
 ////////////////////////
 // Fruits Routes
@@ -44,12 +59,11 @@ router.get("/seed", (req, res) => {
 
 router.get("/", (req, res) => {
     // find all the fruits
-    Fruit.find({})
-      // render a template after they are found
-      .then((fruits) => {
-        res.render("fruits/index.liquid", { fruits });
-      })
-
+    Fruit.find({username: req.session.username})
+    .then((fruits) => {
+        // render the index template with the fruits
+        res.render("fruits/index.liquid", {fruits})
+    })
       //error handling 
 
       .catch((error) => {
@@ -69,6 +83,9 @@ router.post("/", (req, res) => {
     // convert the checkbox property to true or false
     req.body.readyToEat = req.body.readyToEat === "on" ? true : false
 
+     // add the username to req.body, to track user
+     req.body.username = req.session.username
+     
     // create the new fruit
     Fruit.create(req.body)
     .then((fruit) => {

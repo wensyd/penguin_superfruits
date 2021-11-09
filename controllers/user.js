@@ -68,6 +68,7 @@ User.findOne({username})
        } else {
          // send error of wrong password
          res.json({ error: "password doesn't match" });
+         
        }
      } else {
        //send error that user doesn't exist
